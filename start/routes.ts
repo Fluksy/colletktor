@@ -11,17 +11,19 @@ import User from '#models/user'
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
-router.get('/', ({ response }) => {
-  return response.redirect('/login')
-})
+const LoginController = () => import('../app/auth/login_controller.js')
+const SignupController = () => import('../app/auth/signup_controller.js')
 
-router.get('/login', ({ inertia }) => {
-  return inertia.render('auth/login')
-})
+router
+  .group(() => {
+    router.get('/', ({ response }) => response.redirect('auth.login'))
+    router.get('/login', [LoginController, 'render']).as('auth.login')
+    router.get('/signup', [SignupController, 'render']).as('auth.signup')
+  })
+  .use(middleware.guest())
 
-router.get('/signup', ({ inertia }) => {
-  return inertia.render('auth/signup')
-})
+// router.get('/login', [LoginController, 'render']).as('auth.login')
+// router.get('/signup', [SignupController, 'render']).as('auth.signup')
 
 router
   .get('/dashboard', ({ inertia }) => {
